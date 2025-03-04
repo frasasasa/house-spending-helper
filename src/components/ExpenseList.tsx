@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
-const categoryLabels: Record<string, string> = {
+const defaultCategoryLabels: Record<string, string> = {
   all: "Todas las categorías",
   groceries: "Alimentación",
   utilities: "Servicios",
@@ -22,10 +22,20 @@ const categoryLabels: Record<string, string> = {
 };
 
 export function ExpenseList() {
-  const { expenses, removeExpense } = useExpense();
+  const { expenses, removeExpense, budgets } = useExpense();
   const [filter, setFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
+
+  // Combine default category labels with custom categories
+  const categoryLabels = {
+    ...defaultCategoryLabels,
+    ...Object.fromEntries(
+      budgets
+        .filter(b => !Object.keys(defaultCategoryLabels).includes(b.category))
+        .map(b => [b.category, b.category])
+    )
+  };
 
   const filteredExpenses = expenses.filter((expense) => {
     const matchesCategory = filter === "all" || expense.category === filter;
@@ -66,8 +76,11 @@ export function ExpenseList() {
                 <SelectValue placeholder="Filtrar por categoría" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(categoryLabels).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                <SelectItem value="all">{categoryLabels.all}</SelectItem>
+                {budgets.map((budget) => (
+                  <SelectItem key={budget.category} value={budget.category}>
+                    {categoryLabels[budget.category] || budget.category}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -91,6 +104,7 @@ export function ExpenseList() {
                   key={expense.id} 
                   expense={expense} 
                   onDelete={() => setExpenseToDelete(expense.id)} 
+                  categoryLabels={categoryLabels}
                 />
               ))
             )}
@@ -116,7 +130,13 @@ export function ExpenseList() {
   );
 }
 
-function ExpenseItem({ expense, onDelete }: { expense: Expense; onDelete: () => void }) {
+interface ExpenseItemProps {
+  expense: Expense;
+  onDelete: () => void;
+  categoryLabels: Record<string, string>;
+}
+
+function ExpenseItem({ expense, onDelete, categoryLabels }: ExpenseItemProps) {
   const date = new Date(expense.date);
 
   return (
@@ -127,7 +147,7 @@ function ExpenseItem({ expense, onDelete }: { expense: Expense; onDelete: () => 
           <span className="text-sm font-semibold">{formatCurrency(expense.amount)}</span>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{categoryLabels[expense.category]}</span>
+          <span>{categoryLabels[expense.category] || expense.category}</span>
           <span>{format(date, "d MMM yyyy", { locale: es })}</span>
         </div>
       </div>

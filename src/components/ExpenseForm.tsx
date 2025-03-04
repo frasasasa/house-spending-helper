@@ -16,17 +16,17 @@ interface ExpenseFormData {
   category: Category;
 }
 
-const categoryOptions = [
-  { value: "groceries", label: "Alimentación" },
-  { value: "utilities", label: "Servicios" },
-  { value: "rent", label: "Alquiler/Hipoteca" },
-  { value: "entertainment", label: "Entretenimiento" },
-  { value: "transportation", label: "Transporte" },
-  { value: "other", label: "Otros" },
-];
+const defaultCategoryLabels: Record<string, string> = {
+  groceries: "Alimentación",
+  utilities: "Servicios",
+  rent: "Alquiler/Hipoteca",
+  entertainment: "Entretenimiento",
+  transportation: "Transporte",
+  other: "Otros",
+};
 
 export function ExpenseForm() {
-  const { addExpense } = useExpense();
+  const { addExpense, budgets } = useExpense();
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<ExpenseFormData>({
     defaultValues: {
       description: "",
@@ -36,6 +36,12 @@ export function ExpenseForm() {
   });
 
   const category = watch("category");
+
+  // Create category options by combining default labels with custom categories
+  const categoryOptions = budgets.map(budget => ({
+    value: budget.category,
+    label: defaultCategoryLabels[budget.category] || budget.category
+  }));
 
   const onSubmit = (data: ExpenseFormData) => {
     const amount = parseFloat(data.amount);

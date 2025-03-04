@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -25,6 +26,7 @@ interface ExpenseContextType {
   updateBudget: (category: Category, amount: number) => void;
   addBudget: (category: string, amount: number) => void;
   removeBudget: (category: Category) => void;
+  renameCategory: (oldCategory: Category, newCategory: string) => void;
   getTotalExpensesByCategory: (category: Category) => number;
   getRemainingBudgetByCategory: (category: Category) => number;
   getTotalExpenses: () => number;
@@ -125,6 +127,44 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
     toast.success(`Categoría "${category}" eliminada`);
   };
 
+  const renameCategory = (oldCategory: Category, newCategory: string) => {
+    const defaultCategories: Category[] = ['groceries', 'utilities', 'rent', 'entertainment', 'transportation', 'other'];
+    
+    if (defaultCategories.includes(oldCategory)) {
+      toast.error("No se pueden renombrar categorías predeterminadas", {
+        description: "Solo puedes renombrar categorías personalizadas."
+      });
+      return;
+    }
+
+    if (budgets.some(b => b.category === newCategory)) {
+      toast.error("Ya existe una categoría con ese nombre", {
+        description: "Por favor, elige otro nombre para la categoría."
+      });
+      return;
+    }
+
+    // Update budget category
+    setBudgets(prev => 
+      prev.map(budget => 
+        budget.category === oldCategory 
+          ? { ...budget, category: newCategory } 
+          : budget
+      )
+    );
+
+    // Update expenses with this category
+    setExpenses(prev => 
+      prev.map(expense => 
+        expense.category === oldCategory 
+          ? { ...expense, category: newCategory } 
+          : expense
+      )
+    );
+
+    toast.success(`Categoría renombrada a "${newCategory}"`);
+  };
+
   const getTotalExpensesByCategory = (category: Category): number => {
     return expenses
       .filter(expense => expense.category === category)
@@ -167,6 +207,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         updateBudget,
         addBudget,
         removeBudget,
+        renameCategory,
         getTotalExpensesByCategory,
         getRemainingBudgetByCategory,
         getTotalExpenses,
