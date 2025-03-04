@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 
-export type Category = 'groceries' | 'utilities' | 'rent' | 'entertainment' | 'transportation' | 'other';
+export type DefaultCategory = 'groceries' | 'utilities' | 'rent' | 'entertainment' | 'transportation' | 'other';
+export type Category = DefaultCategory | string;
 
 export interface Expense {
   id: string;
@@ -23,6 +23,8 @@ interface ExpenseContextType {
   addExpense: (expense: Omit<Expense, 'id'>) => void;
   removeExpense: (id: string) => void;
   updateBudget: (category: Category, amount: number) => void;
+  addBudget: (category: string, amount: number) => void;
+  removeBudget: (category: Category) => void;
   getTotalExpensesByCategory: (category: Category) => number;
   getRemainingBudgetByCategory: (category: Category) => number;
   getTotalExpenses: () => number;
@@ -96,6 +98,33 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
     });
   };
 
+  const addBudget = (category: string, amount: number) => {
+    if (budgets.some(b => b.category === category)) {
+      toast.error("Esta categoría ya existe", {
+        description: "Por favor, elige otro nombre para la categoría."
+      });
+      return;
+    }
+    
+    setBudgets(prev => [...prev, { category, amount }]);
+    toast.success(`Nueva categoría "${category}" añadida`, {
+      description: `Presupuesto asignado: ${amount.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}`
+    });
+  };
+
+  const removeBudget = (category: Category) => {
+    const defaultCategories: Category[] = ['groceries', 'utilities', 'rent', 'entertainment', 'transportation', 'other'];
+    if (defaultCategories.includes(category)) {
+      toast.error("No se pueden eliminar categorías predeterminadas", {
+        description: "Solo puedes eliminar categorías personalizadas."
+      });
+      return;
+    }
+    
+    setBudgets(prev => prev.filter(b => b.category !== category));
+    toast.success(`Categoría "${category}" eliminada`);
+  };
+
   const getTotalExpensesByCategory = (category: Category): number => {
     return expenses
       .filter(expense => expense.category === category)
@@ -136,6 +165,8 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         addExpense,
         removeExpense,
         updateBudget,
+        addBudget,
+        removeBudget,
         getTotalExpensesByCategory,
         getRemainingBudgetByCategory,
         getTotalExpenses,

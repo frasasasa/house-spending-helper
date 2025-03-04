@@ -3,6 +3,7 @@ import { BudgetCard } from "@/components/BudgetCard";
 import { BudgetSummary } from "@/components/BudgetSummary";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { ExpenseList } from "@/components/ExpenseList";
+import { AddBudgetForm } from "@/components/AddBudgetForm";
 import { useExpense } from "@/context/ExpenseContext";
 
 const Index = () => {
@@ -35,8 +36,9 @@ const Index = () => {
           
           {/* Expense Management */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-6">
               <ExpenseForm />
+              <AddBudgetForm />
             </div>
             <div className="lg:col-span-2">
               <ExpenseList />
