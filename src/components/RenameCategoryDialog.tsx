@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Category } from "@/context/ExpenseContext";
@@ -23,13 +23,13 @@ export function RenameCategoryDialog({
   const [newCategoryName, setNewCategoryName] = useState("");
   
   useEffect(() => {
-    if (open) {
+    if (open && category) {
       setNewCategoryName(category);
     }
   }, [open, category]);
 
   const handleRename = () => {
-    if (!newCategoryName.trim()) {
+    if (!newCategoryName || !newCategoryName.trim()) {
       toast.error("El nombre de la categoría no puede estar vacío");
       return;
     }
@@ -43,6 +43,9 @@ export function RenameCategoryDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Renombrar categoría</DialogTitle>
+          <DialogDescription>
+            Introduce un nuevo nombre para esta categoría
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
