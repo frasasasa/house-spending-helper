@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Category } from "@/context/ExpenseContext";
+import { Category } from "@/types/expense.types";
 import { toast } from "sonner";
 
 interface RenameCategoryDialogProps {
@@ -24,7 +24,7 @@ export function RenameCategoryDialog({
   
   useEffect(() => {
     if (open && category) {
-      setNewCategoryName(category);
+      setNewCategoryName(category.toString());
     }
   }, [open, category]);
 

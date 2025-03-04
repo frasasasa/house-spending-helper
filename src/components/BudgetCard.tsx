@@ -1,13 +1,14 @@
 
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Budget, Category, useExpense } from "@/context/ExpenseContext";
+import { Category, useExpense } from "@/context/ExpenseContext";
 import { formatCurrency, getStatusColor } from "@/utils/formatting";
 import { Settings, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { EditBudgetDialog } from "./EditBudgetDialog";
 import { RenameCategoryDialog } from "./RenameCategoryDialog";
+import { defaultCategories } from "@/utils/expenseUtils";
 
 const categoryLabels: Record<string, string> = {
   groceries: "Alimentación",
@@ -17,8 +18,6 @@ const categoryLabels: Record<string, string> = {
   transportation: "Transporte",
   other: "Otros",
 };
-
-const defaultCategories: string[] = ['groceries', 'utilities', 'rent', 'entertainment', 'transportation', 'other'];
 
 interface BudgetCardProps {
   category: Category;
@@ -58,31 +57,32 @@ export function BudgetCard({ category }: BudgetCardProps) {
           <div className="flex justify-between items-center">
             <CardTitle className="text-base font-medium">{displayName}</CardTitle>
             <div className="flex gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setRenameDialogOpen(true)}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                title="Renombrar categoría"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
               {!isDefaultCategory && (
-                <>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => setRenameDialogOpen(true)}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => removeBudget(category)}
-                    className="h-8 w-8 text-destructive hover:text-destructive/90"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => removeBudget(category)}
+                  className="h-8 w-8 text-destructive hover:text-destructive/90"
+                  title="Eliminar categoría"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               )}
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={() => setBudgetDialogOpen(true)}
                 className="h-8 w-8"
+                title="Editar presupuesto"
               >
                 <Settings className="h-4 w-4" />
               </Button>

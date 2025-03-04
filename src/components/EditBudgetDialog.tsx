@@ -1,13 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Category } from "@/context/ExpenseContext";
+import { Category } from "@/types/expense.types";
 import { toast } from "sonner";
 
-const categoryLabels: Record<Category, string> = {
+const categoryLabels: Record<string, string> = {
   groceries: "Alimentación",
   utilities: "Servicios",
   rent: "Alquiler/Hipoteca",
@@ -31,7 +31,13 @@ export function EditBudgetDialog({
   currentBudget,
   onSave,
 }: EditBudgetDialogProps) {
-  const [amount, setAmount] = useState(currentBudget.toString());
+  const [amount, setAmount] = useState("");
+  
+  useEffect(() => {
+    if (open) {
+      setAmount(currentBudget.toString());
+    }
+  }, [open, currentBudget]);
 
   const handleSave = () => {
     const parsedAmount = parseFloat(amount);
@@ -43,14 +49,18 @@ export function EditBudgetDialog({
     
     onSave(parsedAmount);
     onOpenChange(false);
-    toast.success(`Presupuesto de ${categoryLabels[category]} actualizado`);
+    
+    const displayName = categoryLabels[category] || category;
+    toast.success(`Presupuesto de ${displayName} actualizado`);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Editar presupuesto - {categoryLabels[category]}</DialogTitle>
+          <DialogTitle>
+            Editar presupuesto - {categoryLabels[category] || category}
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">

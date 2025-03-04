@@ -96,18 +96,19 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
   };
 
   const renameCategory = (oldCategory: Category, newCategory: string) => {
-    if (defaultCategories.includes(oldCategory)) {
-      toast.error("No se pueden renombrar categorías predeterminadas", {
-        description: "Solo puedes renombrar categorías personalizadas."
-      });
-      return;
-    }
-
+    // Check if trying to rename to an existing category
     if (budgets.some(b => b.category === newCategory)) {
       toast.error("Ya existe una categoría con ese nombre", {
         description: "Por favor, elige otro nombre para la categoría."
       });
       return;
+    }
+    
+    // Check if it's a default category (can still be renamed in the UI, but display a notice)
+    if (defaultCategories.includes(oldCategory)) {
+      toast.info("Has renombrado una categoría predeterminada", {
+        description: "Los datos seguirán agrupándose correctamente, pero tendrá un nombre personalizado."
+      });
     }
 
     // Update budget category
